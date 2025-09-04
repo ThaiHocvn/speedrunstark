@@ -202,7 +202,22 @@ mod Dex {
         /// Returns:
         ///     (u256, u256): The amounts of tokens and STRK initialized.
         fn init(ref self: ContractState, tokens: u256, strk: u256) -> (u256, u256) {
-            (0, 0)
+            let caller = get_caller_address();
+
+            // Read dispatcher before calling function
+            let balloons = self.token.read();
+            let strk_token = self.strk_token.read();
+
+            // Transfer Balloons from caller to DEX
+            let _ = balloons.transfer_from(caller, get_contract_address(), tokens);
+
+            // Transfer STRK from caller to DEX
+            let _ = strk_token.transfer_from(caller, get_contract_address(), strk);
+
+            self.total_liquidity.write(tokens);
+            self.liquidity.write(caller, tokens);
+
+            (tokens, strk)
         }
 
         // Todo Checkpoint 3:  Implement your function price here.
@@ -230,7 +245,7 @@ mod Dex {
         /// Returns:
         ///     u256: The liquidity amount.
         fn get_liquidity(self: @ContractState, lp_address: ContractAddress) -> u256 {
-            0
+            self.liquidity.read(lp_address)
         }
 
         // Todo Checkpoint 5:  Implement your function get_total_liquidity here.
