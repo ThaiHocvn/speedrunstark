@@ -133,6 +133,8 @@ mod Dex {
         OwnableEvent: OwnableComponent::Event,
         LiquidityProvided: LiquidityProvided,
         LiquidityRemoved: LiquidityRemoved,
+        StrkToTokenSwap: StrkToTokenSwap,
+        TokenToStrkSwap: TokenToStrkSwap,
     }
 
     /// Event emitted when a STRK to token swap occurs.
@@ -232,7 +234,14 @@ mod Dex {
         /// Returns:
         ///     u256: The output amount of STRK.
         fn price(self: @ContractState, x_input: u256, x_reserves: u256, y_reserves: u256) -> u256 {
-            0
+            let x_input_with_fee = x_input * 997;
+            let numerator = x_input_with_fee * y_reserves;
+            let denominator = (x_reserves * 1000) + x_input_with_fee;
+            if denominator == 0 {
+                return 0;
+            }
+
+            numerator / denominator
         }
 
         // Todo Checkpoint 5:  Implement your function get_liquidity here.
@@ -270,7 +279,27 @@ mod Dex {
         /// Returns:
         ///     u256: The amount of tokens received.
         fn strk_to_token(ref self: ContractState, strk_input: u256) -> u256 {
-            0
+            let caller = get_caller_address();
+
+            // Read dispatcher
+            let balloons = self.token.read();
+            let strk_token = self.strk_token.read();
+
+            let strk_reserves = strk_token.balance_of(get_contract_address());
+            let token_reserves = balloons.balance_of(get_contract_address());
+
+            let token_output = self.price(strk_input, strk_reserves, token_reserves);
+
+            // Transfer STRK from user to DEX
+            strk_token.transfer_from(caller, get_contract_address(), strk_input);
+
+            // Transfer tokens from DEX to user
+            balloons.transfer(caller, token_output);
+
+            // Emit event
+            self.emit(StrkToTokenSwap { swapper: caller, token_output, strk_input });
+
+            token_output
         }
 
         // Todo Checkpoint 4:  Implement your function token_to_strk here.
@@ -283,7 +312,27 @@ mod Dex {
         /// Returns:
         ///     u256: The amount of STRK received.
         fn token_to_strk(ref self: ContractState, token_input: u256) -> u256 {
-            0
+            let caller = get_caller_address();
+
+            // Read dispatcher
+            let balloons = self.token.read();
+            let strk_token = self.strk_token.read();
+
+            let strk_reserves = strk_token.balance_of(get_contract_address());
+            let token_reserves = balloons.balance_of(get_contract_address());
+
+            let strk_output = self.price(token_input, token_reserves, strk_reserves);
+
+            // Transfer tokens from users to DEX
+            balloons.transfer_from(caller, get_contract_address(), token_input);
+
+            // Transfer STRK from DEX to user
+            strk_token.transfer(caller, strk_output);
+
+            // Emit event
+            self.emit(TokenToStrkSwap { swapper: caller, tokens_input: token_input, strk_output });
+
+            strk_output
         }
 
         // Todo Checkpoint 5:  Implement your function deposit here.

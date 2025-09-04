@@ -149,109 +149,139 @@ const Events: NextPage = () => {
         </div>
       }
       {/* ToDo Checkpoint 3: Uncomment Sell Token Events*/}
-      {/* {<div className="mt-14">
-        <div className="text-center mb-4">
-          <span className="block text-2xl font-bold">Liquidity Provided Events</span>
-        </div>
-        {isLquidityProvideEventLoading ? (
-          <div className="flex justify-center items-center mt-8">
-            <span className="loading loading-spinner loading-lg"></span>
+      {
+        <div className="mt-14">
+          <div className="text-center mb-4">
+            <span className="block text-2xl font-bold">
+              Liquidity Provided Events
+            </span>
           </div>
-        ) : (
-          <div className="overflow-x-auto shadow-lg">
-            <table className="table table-zebra w-full">
-              <thead>
-                <tr>
-                  <th className="bg-secondary text-white">Address</th>
-                  <th className="bg-secondary text-white">Amount of STRK in</th>
-                  <th className="bg-secondary text-white">Amount of Ballons out</th>
-                  <th className="bg-secondary text-white">Lİquidity Minted</th>
-                </tr>
-              </thead>
-              <tbody>
-                {!liquidityProvideEvent || liquidityProvideEvent.length === 0 ? (
+          {isLquidityProvideEventLoading ? (
+            <div className="flex justify-center items-center mt-8">
+              <span className="loading loading-spinner loading-lg"></span>
+            </div>
+          ) : (
+            <div className="overflow-x-auto shadow-lg">
+              <table className="table table-zebra w-full">
+                <thead>
                   <tr>
-                    <td colSpan={3} className="text-center">
-                      No events found
-                    </td>
+                    <th className="bg-secondary text-white">Address</th>
+                    <th className="bg-secondary text-white">
+                      Amount of STRK in
+                    </th>
+                    <th className="bg-secondary text-white">
+                      Amount of Ballons out
+                    </th>
+                    <th className="bg-secondary text-white">
+                      Lİquidity Minted
+                    </th>
                   </tr>
-                ) : (
+                </thead>
+                <tbody>
+                  {!liquidityProvideEvent ||
+                  liquidityProvideEvent.length === 0 ? (
+                    <tr>
+                      <td colSpan={3} className="text-center">
+                        No events found
+                      </td>
+                    </tr>
+                  ) : (
                     liquidityProvideEvent?.map((event, index) => {
-                    return (
-                      <tr key={index}>
-                        <td className="text-center">
-                          <Address
-                          address={`0x${BigInt(event.args.liquidity_provider).toString(16)}`}
-                           />
-                        </td>
-                        <td>{formatEther(event.args.strk_input).toString()}</td>
-                        <td>
-                          {formatEther(event.args.tokens_input).toString()}
-                        </td>
-                        <td>
-                          {formatEther(event.args.liquidity_minted).toString()}
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>} */}
-      {/* ToDo Checkpoint 3: Uncomment Sell Token Events*/}
-      {/* {<div className="mt-14">
-        <div className="text-center mb-4">
-          <span className="block text-2xl font-bold">Liquidity Removed Events</span>
+                      return (
+                        <tr key={index}>
+                          <td className="text-center">
+                            <Address
+                              address={`0x${BigInt(event.args.liquidity_provider).toString(16)}`}
+                            />
+                          </td>
+                          <td>
+                            {formatEther(event.args.strk_input).toString()}
+                          </td>
+                          <td>
+                            {formatEther(event.args.tokens_input).toString()}
+                          </td>
+                          <td>
+                            {formatEther(
+                              event.args.liquidity_minted
+                            ).toString()}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-        {isLiquidityRemovedEventLoading ? (
-          <div className="flex justify-center items-center mt-8">
-            <span className="loading loading-spinner loading-lg"></span>
+      }
+      {/* ToDo Checkpoint 3: Uncomment Sell Token Events*/}
+      {
+        <div className="mt-14">
+          <div className="text-center mb-4">
+            <span className="block text-2xl font-bold">
+              Liquidity Removed Events
+            </span>
           </div>
-        ) : (
-          <div className="overflow-x-auto shadow-lg">
-            <table className="table table-zebra w-full">
-              <thead>
-                <tr>
-                  <th className="bg-secondary text-white">Address</th>
-                  <th className="bg-secondary text-white">Amount of STRK Out</th>
-                  <th className="bg-secondary text-white">Amount of Balloons Out</th>
-                  <th className="bg-secondary text-white">Liquidity Withdrawn</th>
-                </tr>
-              </thead>
-              <tbody>
-                {!liquidityRemovedEvent || liquidityRemovedEvent.length === 0 ? (
+          {isLiquidityRemovedEventLoading ? (
+            <div className="flex justify-center items-center mt-8">
+              <span className="loading loading-spinner loading-lg"></span>
+            </div>
+          ) : (
+            <div className="overflow-x-auto shadow-lg">
+              <table className="table table-zebra w-full">
+                <thead>
                   <tr>
-                    <td colSpan={3} className="text-center">
-                      No events found
-                    </td>
+                    <th className="bg-secondary text-white">Address</th>
+                    <th className="bg-secondary text-white">
+                      Amount of STRK Out
+                    </th>
+                    <th className="bg-secondary text-white">
+                      Amount of Balloons Out
+                    </th>
+                    <th className="bg-secondary text-white">
+                      Liquidity Withdrawn
+                    </th>
                   </tr>
-                ) : (
+                </thead>
+                <tbody>
+                  {!liquidityRemovedEvent ||
+                  liquidityRemovedEvent.length === 0 ? (
+                    <tr>
+                      <td colSpan={3} className="text-center">
+                        No events found
+                      </td>
+                    </tr>
+                  ) : (
                     liquidityRemovedEvent?.map((event, index) => {
-                    return (
-                      <tr key={index}>
-                        <td className="text-center">
-                          <Address
-                          address={`0x${BigInt(event.args.liquidity_remover).toString(16)}`}
-                           />
-                        </td>
-                        <td>{formatEther(event.args.strk_output).toString()}</td>
-                        <td>
-                          {formatEther(event.args.tokens_output).toString()}
-                        </td>
-                        <td>
-                          {formatEther(event.args.liquidity_withdrawn).toString()}
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>} */}
+                      return (
+                        <tr key={index}>
+                          <td className="text-center">
+                            <Address
+                              address={`0x${BigInt(event.args.liquidity_remover).toString(16)}`}
+                            />
+                          </td>
+                          <td>
+                            {formatEther(event.args.strk_output).toString()}
+                          </td>
+                          <td>
+                            {formatEther(event.args.tokens_output).toString()}
+                          </td>
+                          <td>
+                            {formatEther(
+                              event.args.liquidity_withdrawn
+                            ).toString()}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      }
     </div>
   );
 };
