@@ -38,9 +38,67 @@ const Events: NextPage = () => {
     fromBlock: 0n,
   });
 
+  const { data: approvalEvents, isLoading: isApprovalEventLoading } =
+    useScaffoldEventHistory({
+      contractName: "Balloons",
+      eventName: "openzeppelin_token::erc20::erc20::ERC20Component::Approval",
+      fromBlock: 0n,
+    });
+
   return (
     <div className="flex items-center flex-col flex-grow pt-10">
-      <div>
+      {/* Balloons Approvals */}
+      <div className="mt-14">
+        <div className="text-center mb-4">
+          <span className="block text-2xl font-bold">
+            Balloons Approval Events
+          </span>
+        </div>
+        {isApprovalEventLoading ? (
+          <div className="flex justify-center items-center mt-8">
+            <span className="loading loading-spinner loading-lg"></span>
+          </div>
+        ) : (
+          <div className="overflow-x-auto shadow-lg">
+            <table className="table table-zebra w-full">
+              <thead>
+                <tr>
+                  <th className="bg-secondary text-white">Owner</th>
+                  <th className="bg-secondary text-white">Spender</th>
+                  <th className="bg-secondary text-white">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {!approvalEvents || approvalEvents.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="text-center">
+                      No events found
+                    </td>
+                  </tr>
+                ) : (
+                  approvalEvents?.map((event, index) => (
+                    <tr key={index}>
+                      <td className="text-center">
+                        <Address
+                          address={`0x${BigInt(event.args.owner).toString(16)}`}
+                        />
+                      </td>
+                      <td>
+                        <Address
+                          address={`0x${BigInt(event.args.spender).toString(16)}`}
+                        />
+                      </td>
+                      <td>{formatEther(event.args.value).toString()}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <div className="mt-14">
         <div className="text-center mb-4">
           <span className="block text-2xl font-bold">
             STRK To Balloons Events

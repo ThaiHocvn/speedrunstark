@@ -74,7 +74,7 @@ pub trait IBalloons<T> {
 mod Balloons {
     use openzeppelin_token::erc20::interface::IERC20;
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
-    use super::ContractAddress;
+    use starknet::{ContractAddress};
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
@@ -163,7 +163,8 @@ mod Balloons {
         /// Returns:
         ///     bool: True if the approval was successful, false otherwise.
         fn approve(ref self: ContractState, spender: ContractAddress, amount: u256) -> bool {
-            self.erc20.approve(spender, amount)
+            self.erc20.approve(spender, amount);
+            true
         }
 
         /// Transfers tokens from one account to another.

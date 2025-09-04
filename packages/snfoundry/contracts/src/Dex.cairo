@@ -281,6 +281,7 @@ mod Dex {
         /// Returns:
         ///     u256: The amount of tokens received.
         fn strk_to_token(ref self: ContractState, strk_input: u256) -> u256 {
+            assert(strk_input != 0, 'Cannot swap 0 strk');
             let caller = get_caller_address();
 
             // Read dispatcher
@@ -314,6 +315,7 @@ mod Dex {
         /// Returns:
         ///     u256: The amount of STRK received.
         fn token_to_strk(ref self: ContractState, token_input: u256) -> u256 {
+            assert(token_input != 0, 'Cannot swap 0 tokens');
             let caller = get_caller_address();
 
             // Read dispatcher
@@ -347,6 +349,7 @@ mod Dex {
         /// Returns:
         ///     u256: The amount of liquidity minted.
         fn deposit(ref self: ContractState, strk_amount: u256) -> u256 {
+            assert(strk_amount != 0, 'Deposit must greater than 0');
             let caller = get_caller_address();
             let dex_address = get_contract_address();
 
@@ -427,6 +430,9 @@ mod Dex {
         ///     (u256, u256): The amounts of STRK and tokens withdrawn.
         fn withdraw(ref self: ContractState, amount: u256) -> (u256, u256) {
             let caller = get_caller_address();
+            let current_liquidity = self.liquidity.read(caller);
+            assert(current_liquidity >= amount, 'Insufficient liquidity');
+
             let dex_address = get_contract_address();
 
             let strk_dispatcher = self.strk_token.read();

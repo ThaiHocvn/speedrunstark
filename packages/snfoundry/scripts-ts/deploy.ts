@@ -90,7 +90,7 @@ const transferScript = async (): Promise<void> => {
           contractAddress: dex.address,
           entrypoint: "init",
           calldata: CallData.compile({
-            tokens: INITIAL_SUPPLY10, // tokens amount
+            tokens: INITIAL_SUPPLY, // tokens amount
             strk: INITIAL_SUPPLY, // strk amount (0 for now)
           }),
         },
