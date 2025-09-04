@@ -216,8 +216,10 @@ mod Dex {
             // Transfer STRK from caller to DEX
             let _ = strk_token.transfer_from(caller, get_contract_address(), strk);
 
-            self.total_liquidity.write(tokens);
-            self.liquidity.write(caller, tokens);
+            let liquidity_minted = tokens;
+
+            self.total_liquidity.write(liquidity_minted);
+            self.liquidity.write(caller, liquidity_minted);
 
             (tokens, strk)
         }
@@ -266,7 +268,7 @@ mod Dex {
         /// Returns:
         ///     u256: The total liquidity amount.
         fn get_total_liquidity(self: @ContractState) -> u256 {
-            0
+            self.total_liquidity.read()
         }
 
         // Todo Checkpoint 4:  Implement your function strk_to_token here.
@@ -345,7 +347,48 @@ mod Dex {
         /// Returns:
         ///     u256: The amount of liquidity minted.
         fn deposit(ref self: ContractState, strk_amount: u256) -> u256 {
-            0
+            let caller = get_caller_address();
+            let dex_address = get_contract_address();
+
+            let strk_dispatcher = self.strk_token.read();
+            let token_dispatcher = self.token.read();
+
+            let strk_reserves = strk_dispatcher.balance_of(dex_address);
+            let token_reserves = token_dispatcher.balance_of(dex_address);
+
+            let mut liquidity_minted: u256 = 0;
+            let total_liquidity = self.total_liquidity.read();
+
+            // Get the amount of tokens to deposit based on current reserves ratio
+            let token_amount_to_deposit = self.get_deposit_token_amount(strk_amount);
+
+            if (total_liquidity == 0) {
+                liquidity_minted = strk_amount;
+            } else {
+                liquidity_minted = strk_amount * total_liquidity / strk_reserves;
+            }
+
+            // Transfer STRK and tokens from the user to the DEX
+            strk_dispatcher.transfer_from(caller, dex_address, strk_amount);
+            token_dispatcher.transfer_from(caller, dex_address, token_amount_to_deposit);
+
+            // Update liquidity tracking
+            self.total_liquidity.write(total_liquidity + liquidity_minted);
+            let current_liquidity = self.liquidity.read(caller);
+            self.liquidity.write(caller, current_liquidity + liquidity_minted);
+
+            // Emit event
+            self
+                .emit(
+                    LiquidityProvided {
+                        liquidity_provider: caller,
+                        liquidity_minted,
+                        strk_input: strk_amount,
+                        tokens_input: token_amount_to_deposit,
+                    },
+                );
+
+            liquidity_minted
         }
 
         // Todo Checkpoint 5:  Implement your function get_deposit_token_amount here.
@@ -358,7 +401,19 @@ mod Dex {
         /// Returns:
         ///     u256: The token_amount of deposit.
         fn get_deposit_token_amount(self: @ContractState, strk_amount: u256) -> u256 {
-            0
+            let dex_address = get_contract_address();
+
+            let strk_dispatcher = self.strk_token.read();
+            let token_dispatcher = self.token.read();
+
+            let strk_reserves = strk_dispatcher.balance_of(dex_address);
+            let token_reserves = token_dispatcher.balance_of(dex_address);
+
+            if (strk_reserves == 0 || token_reserves == 0) {
+                return 0;
+            }
+
+            (strk_amount * token_reserves) / strk_reserves
         }
 
         // Todo Checkpoint 5:  Implement your function withdraw here.
@@ -371,7 +426,42 @@ mod Dex {
         /// Returns:
         ///     (u256, u256): The amounts of STRK and tokens withdrawn.
         fn withdraw(ref self: ContractState, amount: u256) -> (u256, u256) {
-            (0, 0)
+            let caller = get_caller_address();
+            let dex_address = get_contract_address();
+
+            let strk_dispatcher = self.strk_token.read();
+            let token_dispatcher = self.token.read();
+
+            let strk_reserves = strk_dispatcher.balance_of(dex_address);
+            let token_reserves = token_dispatcher.balance_of(dex_address);
+
+            let total_liquidity = self.total_liquidity.read();
+            let current_liquidity = self.liquidity.read(caller);
+
+            // Calculate the amounts to withdraw
+            let strk_output = strk_reserves * amount / total_liquidity;
+            let tokens_output = token_reserves * amount / total_liquidity;
+
+            // Transfer STRK and tokens back to the user
+            strk_dispatcher.transfer(caller, strk_output);
+            token_dispatcher.transfer(caller, tokens_output);
+
+            // Update liquidity tracking
+            self.total_liquidity.write(total_liquidity - amount);
+            self.liquidity.write(caller, current_liquidity - amount);
+
+            // Emit event
+            self
+                .emit(
+                    LiquidityRemoved {
+                        liquidity_remover: caller,
+                        liquidity_withdrawn: amount,
+                        tokens_output,
+                        strk_output,
+                    },
+                );
+
+            (strk_output, tokens_output)
         }
     }
 }

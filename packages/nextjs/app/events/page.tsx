@@ -170,7 +170,7 @@ const Events: NextPage = () => {
                       Amount of STRK in
                     </th>
                     <th className="bg-secondary text-white">
-                      Amount of Ballons out
+                      Amount of Ballons in
                     </th>
                     <th className="bg-secondary text-white">
                       Lİquidity Minted

@@ -13,6 +13,8 @@ let dex: any;
 const STRK_ADDRESS =
   "0x4718F5A0FC34CC1AF16A1CDEE98FFB20C31F5CD61D6AB07201858F4287C938D";
 const INITIAL_SUPPLY = cairo.uint256(5_000_000_000_000_000_000n); // 5 * 10^18
+const INITIAL_SUPPLY10 = cairo.uint256(10_000_000_000_000_000_000n); // 10 * 10^18
+const INITIAL_SUPPLY20 = cairo.uint256(20_000_000_000_000_000_000n); // 20 * 10^18
 
 /**
  * Deploys the Balloons and Dex contracts.
@@ -59,7 +61,7 @@ const transferScript = async (): Promise<void> => {
           // approve 1 fri for bridge
           calldata: CallData.compile({
             spender: dex.address,
-            amount: INITIAL_SUPPLY,
+            amount: INITIAL_SUPPLY20,
           }),
         },
         {
@@ -67,7 +69,7 @@ const transferScript = async (): Promise<void> => {
           entrypoint: "approve",
           calldata: CallData.compile({
             spender: dex.address,
-            amount: INITIAL_SUPPLY,
+            amount: INITIAL_SUPPLY20,
           }),
         },
       ],
@@ -88,7 +90,7 @@ const transferScript = async (): Promise<void> => {
           contractAddress: dex.address,
           entrypoint: "init",
           calldata: CallData.compile({
-            tokens: INITIAL_SUPPLY, // tokens amount
+            tokens: INITIAL_SUPPLY10, // tokens amount
             strk: INITIAL_SUPPLY, // strk amount (0 for now)
           }),
         },
