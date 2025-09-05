@@ -10,14 +10,14 @@ const Events: NextPage = () => {
     useScaffoldEventHistory({
       contractName: "Dex",
       eventName: "contracts::Dex::Dex::StrkToTokenSwap",
-      fromBlock: 0n,
+      fromBlock: 1885297n,
     });
 
   const { data: tokenToStrkEvent, isLoading: isTokenToStrkEventLoading } =
     useScaffoldEventHistory({
       contractName: "Dex",
       eventName: "contracts::Dex::Dex::TokenToStrkSwap",
-      fromBlock: 0n,
+      fromBlock: 1885297n,
     });
 
   const {
@@ -26,7 +26,7 @@ const Events: NextPage = () => {
   } = useScaffoldEventHistory({
     contractName: "Dex",
     eventName: "contracts::Dex::Dex::LiquidityProvided",
-    fromBlock: 0n,
+    fromBlock: 1885297n,
   });
 
   const {
@@ -35,14 +35,14 @@ const Events: NextPage = () => {
   } = useScaffoldEventHistory({
     contractName: "Dex",
     eventName: "contracts::Dex::Dex::LiquidityRemoved",
-    fromBlock: 0n,
+    fromBlock: 1885297n,
   });
 
   const { data: approvalEvents, isLoading: isApprovalEventLoading } =
     useScaffoldEventHistory({
       contractName: "Balloons",
       eventName: "openzeppelin_token::erc20::erc20::ERC20Component::Approval",
-      fromBlock: 0n,
+      fromBlock: 1885297n,
     });
 
   return (
