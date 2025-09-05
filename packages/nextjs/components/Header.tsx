@@ -88,7 +88,7 @@ export const Header = () => {
 
   useOutsideClick(
     burgerMenuRef,
-    useCallback(() => setIsDrawerOpen(false), []),
+    useCallback(() => setIsDrawerOpen(false), [])
   );
 
   const { targetNetwork } = useTargetNetwork();
@@ -96,29 +96,46 @@ export const Header = () => {
 
   const { provider } = useProvider();
   const { address, status, chainId } = useAccount();
+
   const { chain } = useNetwork();
   const [isDeployed, setIsDeployed] = useState(true);
 
   useEffect(() => {
-    if (
-      status === "connected" &&
-      address &&
-      chainId === targetNetwork.id &&
-      chain.network === targetNetwork.network
-    ) {
-      provider
-        .getClassHashAt(address)
-        .then((classHash) => {
-          if (classHash) setIsDeployed(true);
-          else setIsDeployed(false);
-        })
-        .catch((e) => {
-          console.error("contract check", e);
-          if (e.toString().includes("Contract not found")) {
-            setIsDeployed(false);
+    const checkContract = async () => {
+      if (
+        status === "connected" &&
+        address &&
+        chainId === targetNetwork.id &&
+        chain.network === targetNetwork.network
+      ) {
+        const retries = 3;
+        const delay = 2000;
+
+        for (let i = 0; i < retries; i++) {
+          try {
+            const latestBlock = await provider.getBlock("latest");
+            const classHash = await provider.getClassHashAt(
+              address,
+              latestBlock.block_number
+            );
+
+            if (classHash) {
+              console.log("classHash", classHash);
+              setIsDeployed(true);
+              return;
+            }
+          } catch (e: any) {
+            console.error(`Attempt ${i + 1} - contract check error`, e);
+            if (!e.toString().includes("Contract not found")) break;
           }
-        });
-    }
+          await new Promise((res) => setTimeout(res, delay));
+        }
+
+        setIsDeployed(false);
+      }
+    };
+
+    checkContract();
   }, [
     status,
     address,
